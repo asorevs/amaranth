@@ -7,6 +7,9 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 var (
@@ -34,10 +37,8 @@ func (c *usersController) Create(w http.ResponseWriter, r *http.Request) {
 		utils.RespondError(w, *restErr)
 		return
 	}
-
 	result, saveErr := services.UsersService.CreateUser(user)
 	if saveErr != nil {
-		saveErr := utils.NewBadRequestError("error saving data")
 		utils.RespondError(w, *saveErr)
 		return
 	}
@@ -47,5 +48,17 @@ func (c *usersController) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *usersController) Get(w http.ResponseWriter, r *http.Request) {
-	return
+	vars := mux.Vars(r)
+
+	userId, userErr := strconv.ParseInt(vars["user_id"], 10, 64)
+	if userErr != nil {
+		err := utils.NewBadRequestError("user id should be a number")
+		utils.RespondError(w, *err)
+		return
+	}
+	user, getErr := services.UsersService.GetUser(userId)
+	if getErr != nil {
+		utils.RespondError(w, *getErr)
+	}
+	utils.RespondJson(w, http.StatusOK, user)
 }
