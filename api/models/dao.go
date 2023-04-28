@@ -1,7 +1,9 @@
 package models
 
 import (
+	"amaranth/api/datasources/mongodb"
 	"amaranth/api/utils"
+	"context"
 	"fmt"
 )
 
@@ -10,6 +12,11 @@ var (
 )
 
 func (user *User) Get() *utils.RestErr {
+	err := mongodb.Client.Ping(context.Background(), nil)
+	if err != nil {
+		panic(err)
+	}
+
 	result := usersDB[user.Id]
 	if result == nil {
 		return utils.NewNotFoundError(fmt.Sprintf("user %d not found", user.Id))
