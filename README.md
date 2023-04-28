@@ -1,6 +1,17 @@
-# Amaranth Real-Time Communication Microservice
+# Real-Time Communication Microservice
 
 This repository contains the source code for a real-time communication microservice built using Golang. The microservice provides a WebSocket API for users to send messages to each other and subscribe to specific channels for updates.
+
+---
+
+- [Features](#features)
+- [Technologies Used](#technologies-used)
+- [Prerequsites](#prerequisites)
+- [Getting Started](#getting-started)
+- [Contributing](#contributing)
+- [License](#license)
+
+---
 
 ## Features
 
@@ -22,9 +33,58 @@ The microservice utilizes the following technologies:
 - Docker for containerization
 - Kubernetes for deployment and scalability
 
+## Prerequisites
+
+Before running the Amaranth application, make sure you have the following prerequisites installed:
+
+- Docker
+- Go (at least version 1.19)
+
 ## Getting Started
 
-Please refer to the documentation for detailed information on API endpoints, setup instructions, and usage examples.
+To get started with Amaranth, follow these steps:
+
+1. Clone the repository:
+
+   ```bash
+   git clone hhttps://github.com/asorevs/amaranth.git
+   ```
+
+2. Change to the project directory:
+
+   ```bash
+   cd amaranth
+   ```
+
+3. Build the Docker image:
+
+   ```bash
+   docker build -t amaranth .
+   ```
+
+4. Run the Docker container:
+
+   ```bash
+   docker run -d -p 27017:27017 --name amaranth-container -e MONGODB_USERNAME="your-username" -e MONGODB_PASSWORD="your-password" amaranth
+   ```
+
+   Replace "your-username" and "your-password" with your desired MongoDB username and password.
+
+5. Verify that the container is running:
+
+   ```bash
+   docker ps
+   ```
+
+   You should see the "amaranth-container" listed.
+
+6. Access the MongoDB shell inside the container:
+
+   ```bash
+   docker exec -it amaranth-container mongo
+   ```
+
+   You can now interact with the preconfigured data in the "amaranth" database.
 
 ## Contributing
 
@@ -33,4 +93,3 @@ Contributions and feedback are welcome. If you encounter any issues or have sugg
 ## License
 
 This microservice is open source and released under the [MIT License](LICENSE).
-
