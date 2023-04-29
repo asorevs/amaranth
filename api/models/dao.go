@@ -55,3 +55,29 @@ func (user *User) Save() *utils.RestErr {
 	}
 	return nil
 }
+
+func (user *User) Update() *utils.RestErr {
+	db := mongodb.Client.Database(mongodb.Config.MongoDBDatabase)
+	collection := db.Collection(mongodb.Config.MongoDBCollection)
+
+	update := bson.M{
+		"$set": bson.M{
+			"firstname": user.FirstName,
+			"lastname":  user.LastName,
+			"email":     user.Email,
+			"status":    user.Status,
+		},
+	}
+
+	filter := bson.M{"_id": user.Id}
+	result, err := collection.UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		return utils.NewDBError("error when updating user in database")
+	}
+
+	if result.MatchedCount == 0 {
+		return utils.NewNotFoundError(fmt.Sprintf("user %s not found", user.Id.Hex()))
+	}
+
+	return nil
+}
