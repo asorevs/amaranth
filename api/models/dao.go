@@ -16,22 +16,20 @@ var (
 )
 
 func (user *User) Get() *utils.RestErr {
-	err := mongodb.Client.Ping(context.Background(), nil)
-	if err != nil {
-		utils.NewDBError("encountered an error while attempting to ping the database server")
+
+	db := mongodb.Client.Database(mongodb.Config.MongoDBDatabase)
+	collection := db.Collection(mongodb.Config.MongoDBCollection)
+
+	result := collection.FindOne(context.Background(), bson.M{"_id": user.Id})
+	if result.Err() == mongo.ErrNoDocuments {
+		return utils.NewNotFoundError(fmt.Sprintf("user %s not found", user.Id.Hex()))
+	} else if result.Err() != nil {
+		return utils.NewDBError("error when getting user from DB")
 	}
 
-	result := usersDB[user.Id]
-	if result == nil {
-		return utils.NewNotFoundError(fmt.Sprintf("user %d not found", user.Id))
+	if err := result.Decode(&user); err != nil {
+		return utils.NewDBError("error decoding user from DB")
 	}
-
-	user.Id = result.Id
-	user.FirstName = result.FirstName
-	user.LastName = result.LastName
-	user.Email = result.Email
-	user.DateCreated = result.DateCreated
-	user.Status = result.Status
 
 	return nil
 }
@@ -45,7 +43,7 @@ func (user *User) Save() *utils.RestErr {
 	if err == nil {
 		return utils.NewBadRequestError(fmt.Sprintf("email %s is already registered", user.Email))
 	} else if err != mongo.ErrNoDocuments {
-		return utils.NewDBError("error when validating duplicated emails")
+		return utils.NewDBError("error when validating duplicate emails")
 	}
 
 	user.Id = primitive.NewObjectID()
@@ -55,6 +53,5 @@ func (user *User) Save() *utils.RestErr {
 	if err != nil {
 		return utils.NewDBError("error when saving user to database")
 	}
-	usersDB[user.Id] = user
 	return nil
 }
