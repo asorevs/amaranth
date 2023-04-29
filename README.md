@@ -47,7 +47,7 @@ To get started with Amaranth, follow these steps:
 1. Clone the repository:
 
    ```bash
-   git clone hhttps://github.com/asorevs/amaranth.git
+   git clone https://github.com/asorevs/amaranth.git
    ```
 
 2. Change to the project directory:
@@ -65,10 +65,14 @@ To get started with Amaranth, follow these steps:
 4. Run the Docker container:
 
    ```bash
-   docker run -d -p 27017:27017 --name amaranth-container -e MONGODB_USERNAME="your-username" -e MONGODB_PASSWORD="your-password" amaranth
+   docker run -d -p 27017:27017 --name amaranth-container amaranth
    ```
 
-   Replace "your-username" and "your-password" with your desired MongoDB username and password.
+   You can also replace "your-username" and "your-password" with your desired MongoDB username and password.
+
+   ```bash
+   docker run -d -p 27017:27017 --name amaranth-container -e MONGODB_USERNAME="your-username" -e MONGODB_PASSWORD="your-password" amaranth
+   ```
 
 5. Verify that the container is running:
 
@@ -81,10 +85,14 @@ To get started with Amaranth, follow these steps:
 6. Access the MongoDB shell inside the container:
 
    ```bash
-   docker exec -it amaranth-container mongo
+   docker exec -it amaranth-container bash
    ```
 
-   You can now interact with the preconfigured data in the "amaranth" database.
+7. You can also interact with the preconfigured data in the "amaranth" database.
+
+   ```bash
+   mongosh
+   ```
 
 ## Contributing
 
