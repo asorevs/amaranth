@@ -7,9 +7,9 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-	"strconv"
 
 	"github.com/gorilla/mux"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 var (
@@ -50,9 +50,9 @@ func (c *usersController) Create(w http.ResponseWriter, r *http.Request) {
 func (c *usersController) Get(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	userId, userErr := strconv.ParseInt(vars["user_id"], 10, 64)
+	userId, userErr := primitive.ObjectIDFromHex(vars["user_id"])
 	if userErr != nil {
-		err := utils.NewBadRequestError("user id should be a number")
+		err := utils.NewBadRequestError("not a valid ObjectID")
 		utils.RespondError(w, *err)
 		return
 	}

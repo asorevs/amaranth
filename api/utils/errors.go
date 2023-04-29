@@ -25,3 +25,19 @@ func NewNotFoundError(message string) *RestErr {
 		Error:   "not_found",
 	}
 }
+
+func NewDBError(message string) *RestErr {
+	return &RestErr{
+		Message: message,
+		Status:  http.StatusInternalServerError,
+		Error:   "database_error",
+	}
+}
+
+func NewInternalError(message string) *RestErr {
+	return &RestErr{
+		Message: message,
+		Status:  http.StatusInternalServerError,
+		Error:   "internal_server_error",
+	}
+}

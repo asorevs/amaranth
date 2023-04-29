@@ -1,6 +1,7 @@
 package app
 
 import (
+	"amaranth/api/utils"
 	"fmt"
 	"net/http"
 	"time"
@@ -27,7 +28,7 @@ func StartApplication() {
 	fmt.Println("Listening and serving HTTP on port :8080")
 
 	if err := srv.ListenAndServe(); err != nil {
-		panic(err)
+		utils.NewInternalError("error on server initialization")
 	}
 
 }

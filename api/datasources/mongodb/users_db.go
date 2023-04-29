@@ -1,6 +1,7 @@
 package mongodb
 
 import (
+	"amaranth/api/utils"
 	"context"
 	"fmt"
 	"net/url"
@@ -11,26 +12,29 @@ import (
 )
 
 const (
-	DefaultMongoDBUsername = ""
-	DefaultMongoDBPassword = ""
-	DefaultMongoDBHost     = "localhost"
-	DefaultMongoDBPort     = "27017"
-	DefaultMongoDBDatabase = ""
+	DefaultMongoDBUsername   = ""
+	DefaultMongoDBPassword   = ""
+	DefaultMongoDBHost       = "localhost"
+	DefaultMongoDBPort       = "27017"
+	DefaultMongoDBDatabase   = "amaranth"
+	DefaultMongoDBCollection = "users"
 )
 
 var (
 	Client *mongo.Client
+	Config *config
 )
 
-type Config struct {
-	MongoDBUsername string
-	MongoDBPassword string
-	MongoDBHost     string
-	MongoDBPort     string
-	MongoDBDatabase string
+type config struct {
+	MongoDBUsername   string
+	MongoDBPassword   string
+	MongoDBHost       string
+	MongoDBPort       string
+	MongoDBDatabase   string
+	MongoDBCollection string
 }
 
-func assignDefaultValues(config *Config) {
+func assignDefaultValues(config *config) {
 	if config.MongoDBUsername == "" {
 		config.MongoDBUsername = DefaultMongoDBUsername
 	}
@@ -46,26 +50,30 @@ func assignDefaultValues(config *Config) {
 	if config.MongoDBDatabase == "" {
 		config.MongoDBDatabase = DefaultMongoDBDatabase
 	}
+	if config.MongoDBCollection == "" {
+		config.MongoDBCollection = DefaultMongoDBCollection
+	}
 }
 
 func init() {
-	config := Config{
-		MongoDBUsername: os.Getenv("MONGODB_USERNAME"),
-		MongoDBPassword: os.Getenv("MONGODB_PASSWORD"),
-		MongoDBHost:     os.Getenv("MONGODB_HOST"),
-		MongoDBPort:     os.Getenv("MONGODB_PORT"),
-		MongoDBDatabase: os.Getenv("MONGODB_DATABASE"),
+	Config = &config{
+		MongoDBUsername:   os.Getenv("MONGODB_USERNAME"),
+		MongoDBPassword:   os.Getenv("MONGODB_PASSWORD"),
+		MongoDBHost:       os.Getenv("MONGODB_HOST"),
+		MongoDBPort:       os.Getenv("MONGODB_PORT"),
+		MongoDBDatabase:   os.Getenv("MONGODB_DATABASE"),
+		MongoDBCollection: os.Getenv("MONGODB_COLLECTION"),
 	}
 
-	assignDefaultValues(&config)
+	assignDefaultValues(Config)
 
 	u := &url.URL{
 		Scheme: "mongodb",
-		Host:   fmt.Sprintf("%s:%s", config.MongoDBHost, config.MongoDBPort),
-		Path:   fmt.Sprintf("/%s", config.MongoDBDatabase),
+		Host:   fmt.Sprintf("%s:%s", Config.MongoDBHost, Config.MongoDBPort),
+		Path:   fmt.Sprintf("/%s", Config.MongoDBDatabase),
 	}
-	if config.MongoDBUsername != "" && config.MongoDBPassword != "" {
-		u.User = url.UserPassword(config.MongoDBUsername, config.MongoDBPassword)
+	if Config.MongoDBUsername != "" && Config.MongoDBPassword != "" {
+		u.User = url.UserPassword(Config.MongoDBUsername, Config.MongoDBPassword)
 	}
 	connectionString := u.String()
 
@@ -74,12 +82,12 @@ func init() {
 	var err error
 	Client, err = mongo.Connect(context.Background(), clientOptions)
 	if err != nil {
-		panic(err)
+		utils.NewDBError("failed to establish a connection with the database")
 	}
 
 	err = Client.Ping(context.Background(), nil)
 	if err != nil {
-		panic(err)
+		utils.NewDBError("encountered an error while attempting to ping the database server")
 	}
 	fmt.Println("Connected to MongoDB!")
 }
