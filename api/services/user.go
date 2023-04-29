@@ -15,6 +15,7 @@ type usersServiceInterface interface {
 	CreateUser(models.User) (*models.User, *utils.RestErr)
 	GetUser(primitive.ObjectID) (*models.User, *utils.RestErr)
 	UpdateUser(bool, models.User) (*models.User, *utils.RestErr)
+	DeleteUser(primitive.ObjectID) *utils.RestErr
 }
 
 type usersService struct{}
@@ -65,4 +66,17 @@ func (s *usersService) UpdateUser(isPartial bool, user models.User) (*models.Use
 		return nil, err
 	}
 	return current, nil
+}
+
+func (s *usersService) DeleteUser(userId primitive.ObjectID) *utils.RestErr {
+	current := &models.User{Id: userId}
+	if err := current.Get(); err != nil {
+		return err
+	}
+
+	if err := current.Delete(); err != nil {
+		return err
+	}
+
+	return nil
 }

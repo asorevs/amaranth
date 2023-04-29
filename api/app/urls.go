@@ -11,5 +11,6 @@ func mapUrls() {
 	router.HandleFunc("/users", controllers.UsersController.Create).Methods(http.MethodPost)
 	router.HandleFunc("/users/{user_id}", controllers.UsersController.Update).Methods(http.MethodPut)
 	router.HandleFunc("/users/{user_id}", controllers.UsersController.Update).Methods(http.MethodPatch)
+	router.HandleFunc("/users/{user_id}", controllers.UsersController.Delete).Methods(http.MethodDelete)
 
 }

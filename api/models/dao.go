@@ -20,7 +20,8 @@ func (user *User) Get() *utils.RestErr {
 	db := mongodb.Client.Database(mongodb.Config.MongoDBDatabase)
 	collection := db.Collection(mongodb.Config.MongoDBCollection)
 
-	result := collection.FindOne(context.Background(), bson.M{"_id": user.Id})
+	filter := bson.M{"_id": user.Id}
+	result := collection.FindOne(context.Background(), filter)
 	if result.Err() == mongo.ErrNoDocuments {
 		return utils.NewNotFoundError(fmt.Sprintf("user %s not found", user.Id.Hex()))
 	} else if result.Err() != nil {
@@ -76,6 +77,23 @@ func (user *User) Update() *utils.RestErr {
 	}
 
 	if result.MatchedCount == 0 {
+		return utils.NewNotFoundError(fmt.Sprintf("user %s not found", user.Id.Hex()))
+	}
+
+	return nil
+}
+
+func (user *User) Delete() *utils.RestErr {
+	db := mongodb.Client.Database(mongodb.Config.MongoDBDatabase)
+	collection := db.Collection(mongodb.Config.MongoDBCollection)
+
+	filter := bson.M{"_id": user.Id}
+	result, err := collection.DeleteOne(context.Background(), filter)
+	if err != nil {
+		return utils.NewDBError("error when deleting user from database")
+	}
+
+	if result.DeletedCount == 0 {
 		return utils.NewNotFoundError(fmt.Sprintf("user %s not found", user.Id.Hex()))
 	}
 

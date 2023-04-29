@@ -20,6 +20,7 @@ type usersControllerInterface interface {
 	Create(w http.ResponseWriter, r *http.Request)
 	Get(w http.ResponseWriter, r *http.Request)
 	Update(w http.ResponseWriter, r *http.Request)
+	Delete(w http.ResponseWriter, r *http.Request)
 }
 
 type usersController struct{}
@@ -95,4 +96,22 @@ func (c *usersController) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.RespondJson(w, http.StatusOK, result)
+}
+
+func (c *usersController) Delete(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	userId, userErr := primitive.ObjectIDFromHex(vars["user_id"])
+	if userErr != nil {
+		err := utils.NewBadRequestError("not a valid ObjectID")
+		utils.RespondError(w, *err)
+		return
+	}
+
+	deleteErr := services.UsersService.DeleteUser(userId)
+	if deleteErr != nil {
+		utils.RespondError(w, *deleteErr)
+		return
+	}
+
+	utils.RespondJson(w, http.StatusOK, map[string]string{"status": "deleted"})
 }
